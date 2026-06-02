@@ -10,14 +10,14 @@ class ApiService {
       Uri.parse("$baseUrl/read.php"),
     );
 
+    print("STATUS: ${response.statusCode}");
+    print("BODY: ${response.body}");
+
     if (response.statusCode == 200) {
       List data = jsonDecode(response.body);
-
       return data.map((item) => Bahan.fromJson(item)).toList();
     } else {
       throw Exception("Gagal mengambil data");
     }
   }
 }
-
-//si anu kontol
