@@ -3,7 +3,6 @@ import 'package:http/http.dart' as http;
 import '../models/bahan_model.dart';
 
 class ApiService {
-  // ⚠️ GANTI sesuai server kamu
   final String baseUrl = "http://localhost/api_kulkas";
 
   Future<List<Bahan>> getBahan() async {
@@ -20,3 +19,5 @@ class ApiService {
     }
   }
 }
+
+//si anu kontol
