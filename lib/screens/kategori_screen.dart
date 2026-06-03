@@ -30,7 +30,7 @@ class _KategoriScreenState extends State<KategoriScreen> {
     });
 
     try {
-      final response = await http.get(Uri.parse("$baseUrl/read_kategori.php"));
+      final response = await http.get(Uri.parse("$baseUrl/get_kategori.php"));
 
       print("STATUS KATEGORI : ${response.statusCode}");
       print("BODY KATEGORI : ${response.body}");
