@@ -22,10 +22,12 @@ class _KategoriScreenState extends State<KategoriScreen> {
 
   Future<void> getKategori() async {
     try {
-      // Ganti dengan URL API milik tim Anda
       final response = await http.get(
-        Uri.parse('http://localhost/api_kulkas/kategori.php'),
+        Uri.parse('http://localhost/api_kulkas/read_kategori.php'),
       );
+
+      print("STATUS KATEGORI : ${response.statusCode}");
+      print("BODY KATEGORI : ${response.body}");
 
       if (response.statusCode == 200) {
         setState(() {
@@ -39,6 +41,8 @@ class _KategoriScreenState extends State<KategoriScreen> {
         });
       }
     } catch (e) {
+      print("ERROR KATEGORI : $e");
+
       setState(() {
         errorMessage = 'Terjadi kesalahan: $e';
         isLoading = false;
@@ -66,70 +70,52 @@ class _KategoriScreenState extends State<KategoriScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Kategori Bahan'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Kategori Bahan'), centerTitle: true),
       body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
+          ? const Center(child: CircularProgressIndicator())
           : errorMessage.isNotEmpty
-              ? Center(
-                  child: Text(
-                    errorMessage,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                )
-              : kategoriList.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'Belum ada kategori',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                    )
-                  : RefreshIndicator(
-                      onRefresh: getKategori,
-                      child: ListView.builder(
-                        itemCount: kategoriList.length,
-                        itemBuilder: (context, index) {
-                          final kategori = kategoriList[index];
+          ? Center(
+              child: Text(
+                errorMessage,
+                style: const TextStyle(color: Colors.red, fontSize: 16),
+              ),
+            )
+          : kategoriList.isEmpty
+          ? const Center(
+              child: Text('Belum ada kategori', style: TextStyle(fontSize: 16)),
+            )
+          : RefreshIndicator(
+              onRefresh: getKategori,
+              child: ListView.builder(
+                itemCount: kategoriList.length,
+                itemBuilder: (context, index) {
+                  final kategori = kategoriList[index];
 
-                          return Card(
-                            margin: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            elevation: 3,
-                            child: ListTile(
-                              leading: CircleAvatar(
-                                backgroundColor:
-                                    Colors.green.shade100,
-                                child: Icon(
-                                  getKategoriIcon(
-                                    kategori['nama_kategori'],
-                                  ),
-                                  color: Colors.green,
-                                ),
-                              ),
-                              title: Text(
-                                kategori['nama_kategori'],
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              subtitle: Text(
-                                'ID Kategori: ${kategori['id']}',
-                              ),
-                              trailing: const Icon(
-                                Icons.arrow_forward_ios,
-                                size: 16,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
+                  return Card(
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
                     ),
+                    elevation: 3,
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.green.shade100,
+                        child: Icon(
+                          getKategoriIcon(kategori['nama_kategori'] ?? ''),
+                          color: Colors.green,
+                        ),
+                      ),
+                      title: Text(
+                        kategori['nama_kategori'] ?? '',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text('ID Kategori: ${kategori['id']}'),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                    ),
+                  );
+                },
+              ),
+            ),
     );
   }
 }
