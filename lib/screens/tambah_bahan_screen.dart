@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import '../services/api_services.dart';
 
 class TambahBahanScreen extends StatefulWidget {
   const TambahBahanScreen({super.key});
@@ -17,6 +17,7 @@ class _TambahBahanScreenState extends State<TambahBahanScreen> {
 
   String? _selectedJenis;
   DateTime? _finalKadaluarsa;
+  bool isLoading = false;
 
   final List<String> _listJenis = [
     'Makanan Kemasan (Input Manual)',
@@ -35,73 +36,76 @@ class _TambahBahanScreenState extends State<TambahBahanScreen> {
   }
 
   Future<void> _pilihTanggal(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
+    final picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime.now(),
-      lastDate: DateTime(2030),
+      lastDate: DateTime(2035),
     );
 
     if (picked != null) {
       setState(() {
         _finalKadaluarsa = picked;
+
         _tanggalController.text =
-            "${picked.day}/${picked.month}/${picked.year}";
+            "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
       });
     }
   }
 
-  Future<void> _simpanData() async {
+  Future<void> simpanData() async {
     if (!_formKey.currentState!.validate()) return;
 
-    DateTime waktuHitungSistem = DateTime.now();
+    setState(() {
+      isLoading = true;
+    });
 
     int masaSimpan = 0;
 
-    if (_selectedJenis == 'Makanan Kemasan (Input Manual)') {
-      waktuHitungSistem = _finalKadaluarsa!;
-      masaSimpan = _finalKadaluarsa!.difference(DateTime.now()).inDays;
-    } else if (_selectedJenis == 'Minuman Kemasan (Input Manual)') {
-      waktuHitungSistem = _finalKadaluarsa!;
-      masaSimpan = _finalKadaluarsa!.difference(DateTime.now()).inDays;
+    if (_selectedJenis == 'Makanan Kemasan (Input Manual)' ||
+        _selectedJenis == 'Minuman Kemasan (Input Manual)') {
+      masaSimpan = _finalKadaluarsa!.difference(DateTime.now()).inDays + 1;
+
+      if (masaSimpan <= 0) {
+        masaSimpan = 1;
+      }
     } else if (_selectedJenis == 'Sayuran (Otomatis 5 Hari)') {
       masaSimpan = 5;
-      waktuHitungSistem = waktuHitungSistem.add(const Duration(days: 5));
     } else if (_selectedJenis == 'Buah (Otomatis 7 Hari)') {
       masaSimpan = 7;
-      waktuHitungSistem = waktuHitungSistem.add(const Duration(days: 7));
     } else if (_selectedJenis == 'Daging / Ikan (Otomatis 3 Hari)') {
       masaSimpan = 3;
-      waktuHitungSistem = waktuHitungSistem.add(const Duration(days: 3));
     }
-    String tanggalMasuk =
-        "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().day.toString().padLeft(2, '0')}";
 
-    try {
-      var response = await http.post(
-        Uri.parse("http://localhost/api_kulkas/create.php"),
-        body: {
-          "nama": _namaController.text,
-          "tanggal_masuk": tanggalMasuk,
-          "masa_simpan": masaSimpan.toString(),
-        },
+    String tanggalMasuk = DateTime.now().toString().split(' ')[0];
+
+    bool sukses = await ApiService().insertBahan(
+      nama: _namaController.text.trim(),
+      tanggalMasuk: tanggalMasuk,
+      masaSimpan: masaSimpan.toString(),
+    );
+
+    if (!mounted) return;
+
+    setState(() {
+      isLoading = false;
+    });
+
+    if (sukses) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Data berhasil disimpan"),
+          backgroundColor: Colors.green,
+        ),
       );
 
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Berhasil! ${_namaController.text} disimpan'),
-            backgroundColor: Colors.green,
-          ),
-        );
-
-        Navigator.pop(context, true); // kembali ke dashboard
-      } else {
-        throw Exception("Gagal simpan");
-      }
-    } catch (e) {
+      Navigator.pop(context, true);
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red),
+        const SnackBar(
+          content: Text("Gagal menyimpan data"),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -110,7 +114,7 @@ class _TambahBahanScreenState extends State<TambahBahanScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tambah Bahan Makanan'),
+        title: const Text("Tambah Bahan"),
         backgroundColor: Colors.teal,
       ),
       body: Padding(
@@ -122,59 +126,97 @@ class _TambahBahanScreenState extends State<TambahBahanScreen> {
               children: [
                 TextFormField(
                   controller: _namaController,
-                  decoration: const InputDecoration(labelText: 'Nama Bahan'),
-                  validator: (value) =>
-                      value!.isEmpty ? 'Tidak boleh kosong' : null,
+                  decoration: const InputDecoration(
+                    labelText: "Nama Bahan",
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Nama bahan wajib diisi";
+                    }
+                    return null;
+                  },
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 15),
 
                 TextFormField(
                   controller: _jumlahController,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Jumlah'),
-                  validator: (value) =>
-                      value!.isEmpty ? 'Tidak boleh kosong' : null,
+                  decoration: const InputDecoration(
+                    labelText: "Jumlah",
+                    border: OutlineInputBorder(),
+                  ),
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 15),
 
                 DropdownButtonFormField<String>(
-                  initialValue: _selectedJenis,
-                  hint: const Text("Pilih jenis"),
-                  items: _listJenis.map((e) {
-                    return DropdownMenuItem(value: e, child: Text(e));
+                  value: _selectedJenis,
+                  decoration: const InputDecoration(
+                    labelText: "Jenis Bahan",
+                    border: OutlineInputBorder(),
+                  ),
+                  items: _listJenis.map((item) {
+                    return DropdownMenuItem(value: item, child: Text(item));
                   }).toList(),
-                  onChanged: (val) {
+                  onChanged: (value) {
                     setState(() {
-                      _selectedJenis = val;
-                      _tanggalController.clear();
+                      _selectedJenis = value;
+
+                      if (value != 'Makanan Kemasan (Input Manual)' &&
+                          value != 'Minuman Kemasan (Input Manual)') {
+                        _tanggalController.clear();
+                        _finalKadaluarsa = null;
+                      }
                     });
                   },
-                  validator: (value) => value == null ? 'Pilih jenis' : null,
+                  validator: (value) {
+                    if (value == null) {
+                      return "Pilih jenis bahan";
+                    }
+                    return null;
+                  },
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 15),
 
                 if (_selectedJenis == 'Makanan Kemasan (Input Manual)' ||
                     _selectedJenis == 'Minuman Kemasan (Input Manual)')
                   TextFormField(
                     controller: _tanggalController,
                     readOnly: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Tanggal Kadaluarsa',
-                      suffixIcon: Icon(Icons.calendar_today),
-                    ),
                     onTap: () => _pilihTanggal(context),
-                    validator: (value) =>
-                        value!.isEmpty ? 'Wajib isi tanggal' : null,
+                    decoration: const InputDecoration(
+                      labelText: "Tanggal Kadaluarsa",
+                      border: OutlineInputBorder(),
+                      suffixIcon: Icon(Icons.calendar_month),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Tanggal kadaluarsa wajib dipilih";
+                      }
+                      return null;
+                    },
                   ),
 
-                const SizedBox(height: 32),
+                const SizedBox(height: 30),
 
-                ElevatedButton(
-                  onPressed: _simpanData,
-                  child: const Text("Simpan"),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: isLoading ? null : simpanData,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.teal,
+                    ),
+                    child: isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                            "Simpan ke Kulkas",
+                            style: TextStyle(color: Colors.white, fontSize: 16),
+                          ),
+                  ),
                 ),
               ],
             ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/bahan_model.dart';
 import '../services/api_services.dart';
+import 'edit_bahan_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -15,13 +16,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
+    loadData();
+  }
+
+  void loadData() {
     futureBahan = ApiService().getBahan();
   }
 
   Color getWarna(int sisaHari) {
-    if (sisaHari < 0) return Colors.red;
-    if (sisaHari <= 2) return Colors.orange;
+    if (sisaHari < 0) {
+      return Colors.red;
+    } else if (sisaHari <= 2) {
+      return Colors.orange;
+    }
     return Colors.green;
+  }
+
+  Future<void> hapusData(String id) async {
+    bool sukses = await ApiService().deleteBahan(id);
+
+    if (sukses) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Data berhasil dihapus")));
+
+      setState(() {
+        loadData();
+      });
+    }
   }
 
   @override
@@ -33,66 +55,116 @@ class _DashboardScreenState extends State<DashboardScreen> {
           return const Center(child: CircularProgressIndicator());
         }
 
+        if (snapshot.hasError) {
+          return Center(child: Text("Error : ${snapshot.error}"));
+        }
+
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(child: Text("Tidak ada data"));
         }
 
         final data = snapshot.data!;
 
-        return ListView.builder(
-          itemCount: data.length,
-          itemBuilder: (context, index) {
-            final bahan = data[index];
+        return RefreshIndicator(
+          onRefresh: () async {
+            setState(() {
+              loadData();
+            });
+          },
+          child: ListView.builder(
+            itemCount: data.length,
+            itemBuilder: (context, index) {
+              final bahan = data[index];
 
-            return Container(
-              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 5),
-              padding: const EdgeInsets.all(10),
-              color: Colors.grey[300],
-              child: Row(
-                children: [
-                  // 🔹 ICON BULAT (ID)
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Colors.grey,
-                    child: Text(
-                      bahan.id,
-                      style: const TextStyle(color: Colors.black),
-                    ),
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                child: ListTile(
+                  leading: CircleAvatar(child: Text(bahan.id)),
+
+                  title: Text(
+                    bahan.nama,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
 
-                  const SizedBox(width: 10),
-
-                  // 🔹 DATA
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          bahan.nama,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Tanggal Masuk : ${bahan.tanggalMasukFormat}"),
+                      Text("Tanggal Expired : ${bahan.tanggalExpiredFormat}"),
+                      Text("Sisa Hari : ${bahan.sisaHari}"),
+                      Text(
+                        bahan.status,
+                        style: TextStyle(
+                          color: getWarna(bahan.sisaHari),
+                          fontWeight: FontWeight.bold,
                         ),
-                        Text("tanggal masuk: ${bahan.tanggalMasuk}"),
-                        Text("tanggal expired: ${bahan.tanggalExpired}"),
-                        Text("sisa hari: ${bahan.sisaHari}"),
+                      ),
+                    ],
+                  ),
+
+                  trailing: SizedBox(
+                    width: 100,
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit, color: Colors.blue),
+                          onPressed: () async {
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => EditBahanScreen(
+                                  id: bahan.id,
+                                  nama: bahan.nama,
+                                  tanggalMasuk: bahan.tanggalMasukFormat,
+                                  masaSimpan: bahan.masaSimpan.toString(),
+                                ),
+                              ),
+                            );
+
+                            if (result == true) {
+                              setState(() {
+                                loadData();
+                              });
+                            }
+                          },
+                        ),
+
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                title: const Text("Hapus Data"),
+                                content: Text(
+                                  "Yakin ingin menghapus ${bahan.nama} ?",
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text("Batal"),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                      hapusData(bahan.id);
+                                    },
+                                    child: const Text("Hapus"),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
                       ],
                     ),
                   ),
-
-                  // 🔹 STATUS
-                  Text(
-                    bahan.status,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: getWarna(bahan.sisaHari),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
+                ),
+              );
+            },
+          ),
         );
       },
     );

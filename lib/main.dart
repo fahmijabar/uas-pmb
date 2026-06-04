@@ -28,72 +28,94 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Koolkasku',
+      theme: ThemeData(primarySwatch: Colors.cyan),
       home: const MainPage(),
     );
   }
 }
 
-class MainPage extends StatelessWidget {
+class MainPage extends StatefulWidget {
   const MainPage({super.key});
+
+  @override
+  State<MainPage> createState() => _MainPageState();
+}
+
+class _MainPageState extends State<MainPage> {
+  Key dashboardKey = UniqueKey();
+
+  void refreshDashboard() {
+    setState(() {
+      dashboardKey = UniqueKey();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.cyan,
-      
-      // 🔹 HEADER
+
+      // HEADER
       appBar: AppBar(
-        title: const Text(
-          "Koolkasku",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
         backgroundColor: Colors.cyan,
         elevation: 0,
+        centerTitle: true,
+        title: const Text(
+          "Koolkasku",
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
       ),
 
-      // 🔹 BODY (kotak putih + dashboard)
+      // BODY
       body: Container(
         margin: const EdgeInsets.all(10),
         padding: const EdgeInsets.all(5),
         decoration: BoxDecoration(
           color: Colors.white,
           border: Border.all(color: Colors.blue, width: 2),
+          borderRadius: BorderRadius.circular(10),
         ),
-        child: const DashboardScreen(),
+        child: DashboardScreen(key: dashboardKey),
       ),
 
-      // 🔹 FLOATING BUTTON (+)
+      // BUTTON BAWAH
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children:[
+        children: [
+          // TAMBAH DATA
           FloatingActionButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => TambahBahanScreen()),
-              ).then((result) {
-                if (result == true) {}
-              });
-            },
+            heroTag: "btnTambah",
             backgroundColor: Colors.blue,
             child: const Icon(Icons.add),
+            onPressed: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const TambahBahanScreen()),
+              );
+
+              if (result == true) {
+                refreshDashboard();
+              }
+            },
           ),
+
           const SizedBox(width: 20),
+
+          // KATEGORI
           FloatingActionButton(
+            heroTag: "btnKategori",
+            backgroundColor: Colors.blue,
+            child: const Icon(Icons.list),
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => KategoriScreen()),
-              ).then((result) {
-                if (result == true) {}
-              });
+                MaterialPageRoute(builder: (_) => const KategoriScreen()),
+              );
             },
-            backgroundColor: Colors.blue,
-            child: const Icon(Icons.list),
           ),
-        ]
+        ],
       ),
+
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
