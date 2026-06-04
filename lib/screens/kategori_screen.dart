@@ -1,6 +1,5 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class KategoriScreen extends StatefulWidget {
   const KategoriScreen({super.key});
@@ -10,10 +9,10 @@ class KategoriScreen extends StatefulWidget {
 }
 
 class _KategoriScreenState extends State<KategoriScreen> {
+  final supabase = Supabase.instance.client;
+
   List kategoriList = [];
   bool isLoading = true;
-
-  final String baseUrl = "http://localhost/api_kulkas";
 
   @override
   void initState() {
@@ -30,27 +29,25 @@ class _KategoriScreenState extends State<KategoriScreen> {
     });
 
     try {
-      final response = await http.get(Uri.parse("$baseUrl/get_kategori.php"));
+      final data = await supabase
+          .from('kategori')
+          .select()
+          .order('id');
 
-      print("STATUS KATEGORI : ${response.statusCode}");
-      print("BODY KATEGORI : ${response.body}");
-
-      if (response.statusCode == 200) {
-        setState(() {
-          kategoriList = json.decode(response.body);
-          isLoading = false;
-        });
-      }
+      setState(() {
+        kategoriList = data;
+        isLoading = false;
+      });
     } catch (e) {
-      print("ERROR KATEGORI : $e");
-
       setState(() {
         isLoading = false;
       });
 
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text("Error : $e")));
+      ).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
     }
   }
 
@@ -59,18 +56,17 @@ class _KategoriScreenState extends State<KategoriScreen> {
   // ==========================
   Future<void> tambahKategori(String namaKategori) async {
     try {
-      final response = await http.post(
-        Uri.parse("$baseUrl/tambah_kategori.php"),
-        body: {"nama_kategori": namaKategori},
+      await supabase.from('kategori').insert({
+        'nama': namaKategori,
+      });
+
+      await getKategori();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Kategori berhasil ditambahkan"),
+        ),
       );
-
-      if (response.statusCode == 200) {
-        getKategori();
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Kategori berhasil ditambahkan")),
-        );
-      }
     } catch (e) {
       print(e);
     }
@@ -79,20 +75,25 @@ class _KategoriScreenState extends State<KategoriScreen> {
   // ==========================
   // UPDATE
   // ==========================
-  Future<void> updateKategori(String id, String namaKategori) async {
+  Future<void> updateKategori(
+    String id,
+    String namaKategori,
+  ) async {
     try {
-      final response = await http.post(
-        Uri.parse("$baseUrl/update_kategori.php"),
-        body: {"id": id, "nama_kategori": namaKategori},
+      await supabase
+          .from('kategori')
+          .update({
+            'nama': namaKategori,
+          })
+          .eq('id', int.parse(id));
+
+      await getKategori();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Kategori berhasil diubah"),
+        ),
       );
-
-      if (response.statusCode == 200) {
-        getKategori();
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Kategori berhasil diubah")),
-        );
-      }
     } catch (e) {
       print(e);
     }
@@ -103,18 +104,18 @@ class _KategoriScreenState extends State<KategoriScreen> {
   // ==========================
   Future<void> hapusKategori(String id) async {
     try {
-      final response = await http.post(
-        Uri.parse("$baseUrl/hapus_kategori.php"),
-        body: {"id": id},
+      await supabase
+          .from('kategori')
+          .delete()
+          .eq('id', int.parse(id));
+
+      await getKategori();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Kategori berhasil dihapus"),
+        ),
       );
-
-      if (response.statusCode == 200) {
-        getKategori();
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Kategori berhasil dihapus")),
-        );
-      }
     } catch (e) {
       print(e);
     }
@@ -173,7 +174,9 @@ class _KategoriScreenState extends State<KategoriScreen> {
           title: const Text("Edit Kategori"),
           content: TextField(
             controller: controller,
-            decoration: const InputDecoration(border: OutlineInputBorder()),
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+            ),
           ),
           actions: [
             TextButton(
@@ -183,7 +186,11 @@ class _KategoriScreenState extends State<KategoriScreen> {
             ElevatedButton(
               onPressed: () {
                 if (controller.text.isNotEmpty) {
-                  updateKategori(id, controller.text);
+                  updateKategori(
+                    id,
+                    controller.text,
+                  );
+
                   Navigator.pop(context);
                 }
               },
@@ -213,7 +220,9 @@ class _KategoriScreenState extends State<KategoriScreen> {
               child: const Text("Batal"),
             ),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+              ),
               onPressed: () {
                 hapusKategori(id);
                 Navigator.pop(context);
@@ -248,7 +257,10 @@ class _KategoriScreenState extends State<KategoriScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Kategori Bahan"), centerTitle: true),
+      appBar: AppBar(
+        title: const Text("Kategori Bahan"),
+        centerTitle: true,
+      ),
 
       floatingActionButton: FloatingActionButton(
         onPressed: showTambahDialog,
@@ -256,57 +268,81 @@ class _KategoriScreenState extends State<KategoriScreen> {
       ),
 
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : kategoriList.isEmpty
           ? const Center(
-              child: Text("Belum ada kategori", style: TextStyle(fontSize: 18)),
+              child: CircularProgressIndicator(),
             )
-          : RefreshIndicator(
-              onRefresh: getKategori,
-              child: ListView.builder(
-                itemCount: kategoriList.length,
-                itemBuilder: (context, index) {
-                  final kategori = kategoriList[index];
+          : kategoriList.isEmpty
+              ? const Center(
+                  child: Text(
+                    "Belum ada kategori",
+                    style: TextStyle(fontSize: 18),
+                  ),
+                )
+              : RefreshIndicator(
+                  onRefresh: getKategori,
+                  child: ListView.builder(
+                    itemCount: kategoriList.length,
+                    itemBuilder: (context, index) {
+                      final kategori = kategoriList[index];
 
-                  return Card(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        child: Icon(getKategoriIcon(kategori['nama_kategori'])),
-                      ),
-                      title: Text(
-                        kategori['nama_kategori'],
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Text("ID : ${kategori['id']}"),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.blue),
-                            onPressed: () {
-                              showEditDialog(
-                                kategori['id'].toString(),
-                                kategori['nama_kategori'],
-                              );
-                            },
+                      return Card(
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            child: Icon(
+                              getKategoriIcon(
+                                kategori['nama'],
+                              ),
+                            ),
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () {
-                              showDeleteDialog(kategori['id'].toString());
-                            },
+
+                          title: Text(
+                            kategori['nama'],
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
+
+                          subtitle: Text(
+                            "ID : ${kategori['id']}",
+                          ),
+
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.edit,
+                                  color: Colors.blue,
+                                ),
+                                onPressed: () {
+                                  showEditDialog(
+                                    kategori['id'].toString(),
+                                    kategori['nama'],
+                                  );
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.delete,
+                                  color: Colors.red,
+                                ),
+                                onPressed: () {
+                                  showDeleteDialog(
+                                    kategori['id'].toString(),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
     );
   }
 }
