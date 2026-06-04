@@ -1,22 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 import 'screens/dashboard_screen.dart';
 import 'screens/tambah_bahan_screen.dart';
 import 'screens/kategori_screen.dart';
-import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Supabase.initialize(
     url: 'https://rvrnnuxymclisxznfgma.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2cm5udXh5bWNsaXN4em5mZ21hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzNDc1ODMsImV4cCI6MjA5NTkyMzU4M30.oatXvSUwOCxwAMvoL4-57At464KDSg2AuBhngtJHU-8',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2cm5udXh5bWNsaXN4em5mZ21hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzNDc1ODMsImV4cCI6MjA5NTkyMzU4M30.oatXvSUwOCxwAMvoL4-57At464KDSg2AuBhngtJHU-8',
   );
 
-  runApp(const MyApp());
-}
-
-void main() {
   runApp(const MyApp());
 }
 
@@ -28,7 +25,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Koolkasku',
-      theme: ThemeData(primarySwatch: Colors.cyan),
+      theme: ThemeData(
+        primarySwatch: Colors.cyan,
+      ),
       home: const MainPage(),
     );
   }
@@ -62,7 +61,10 @@ class _MainPageState extends State<MainPage> {
         centerTitle: true,
         title: const Text(
           "Koolkasku",
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
       ),
 
@@ -72,10 +74,15 @@ class _MainPageState extends State<MainPage> {
         padding: const EdgeInsets.all(5),
         decoration: BoxDecoration(
           color: Colors.white,
-          border: Border.all(color: Colors.blue, width: 2),
+          border: Border.all(
+            color: Colors.blue,
+            width: 2,
+          ),
           borderRadius: BorderRadius.circular(10),
         ),
-        child: DashboardScreen(key: dashboardKey),
+        child: DashboardScreen(
+          key: dashboardKey,
+        ),
       ),
 
       // BUTTON BAWAH
@@ -90,7 +97,9 @@ class _MainPageState extends State<MainPage> {
             onPressed: () async {
               final result = await Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const TambahBahanScreen()),
+                MaterialPageRoute(
+                  builder: (_) => const TambahBahanScreen(),
+                ),
               );
 
               if (result == true) {
@@ -109,14 +118,17 @@ class _MainPageState extends State<MainPage> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const KategoriScreen()),
+                MaterialPageRoute(
+                  builder: (_) => const KategoriScreen(),
+                ),
               );
             },
           ),
         ],
       ),
 
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButtonLocation:
+          FloatingActionButtonLocation.centerFloat,
     );
   }
 }
