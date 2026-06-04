@@ -202,16 +202,19 @@ class _KategoriScreenState extends State<KategoriScreen> {
               child: const Text("Batal"),
             ),
             ElevatedButton(
-              onPressed: () {
-                if (controller.text.isNotEmpty) {
-                  updateKategori(
-                    id,
-                    controller.text,
-                  );
+              onPressed: () async {
+                  if (controller.text.trim().isNotEmpty) {
 
-                  Navigator.pop(context);
-                }
-              },
+                    await updateKategori(
+                      id,
+                      controller.text.trim(),
+                    );
+
+                    if (mounted) {
+                      Navigator.pop(context);
+                    }
+                  }
+                },
               child: const Text("Update"),
             ),
           ],
@@ -280,7 +283,11 @@ class _KategoriScreenState extends State<KategoriScreen> {
         centerTitle: true,
       ),
 
+      floatingActionButtonLocation:
+      FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
+        heroTag: "btnTambahKategori",
+        backgroundColor: Colors.blue,
         onPressed: showTambahDialog,
         child: const Icon(Icons.add),
       ),
