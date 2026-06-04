@@ -31,22 +31,27 @@ class _KategoriScreenState extends State<KategoriScreen> {
     try {
       final data = await supabase
           .from('kategori')
-          .select()
-          .order('id');
+          .select();
+
+      print("DATA DARI SUPABASE:");
+      print(data);
 
       setState(() {
         kategoriList = data;
         isLoading = false;
       });
     } catch (e) {
+      print("ERROR GET KATEGORI:");
+      print(e);
+
       setState(() {
         isLoading = false;
       });
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(
-        SnackBar(content: Text("Error: $e")),
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error: $e"),
+        ),
       );
     }
   }
