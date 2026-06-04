@@ -1,27 +1,22 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/bahan_model.dart';
 
 class ApiService {
-  static const String baseUrl = "http://localhost/api_kulkas";
+  final supabase = Supabase.instance.client;
 
   // ==========================
-  // READ DATA
+  // READ
   // ==========================
   Future<List<Bahan>> getBahan() async {
     try {
-      final response = await http.get(Uri.parse("$baseUrl/read.php"));
+      final data = await supabase
+          .from('bahan')
+          .select()
+          .order('id');
 
-      print("READ STATUS : ${response.statusCode}");
-      print("READ BODY : ${response.body}");
-
-      if (response.statusCode == 200) {
-        final List data = jsonDecode(response.body);
-
-        return data.map((e) => Bahan.fromJson(e)).toList();
-      }
-
-      return [];
+      return (data as List)
+          .map((e) => Bahan.fromJson(e))
+          .toList();
     } catch (e) {
       print("ERROR READ : $e");
       return [];
@@ -29,7 +24,7 @@ class ApiService {
   }
 
   // ==========================
-  // INSERT DATA
+  // INSERT
   // ==========================
   Future<bool> insertBahan({
     required String nama,
@@ -37,32 +32,13 @@ class ApiService {
     required String masaSimpan,
   }) async {
     try {
-      final response = await http.post(
-        Uri.parse("$baseUrl/input_bahan.php"),
-        body: {
-          "nama": nama,
-          "tanggal_masuk": tanggalMasuk,
-          "masa_simpan": masaSimpan,
-        },
-      );
+      await supabase.from('bahan').insert({
+        'nama': nama,
+        'tanggal_masuk': tanggalMasuk,
+        'masa_simpan': int.parse(masaSimpan),
+      });
 
-      print("INSERT STATUS : ${response.statusCode}");
-      print("INSERT BODY : ${response.body}");
-
-      if (response.statusCode == 200) {
-        try {
-          final result = jsonDecode(response.body);
-
-          print("INSERT RESULT : $result");
-
-          return result["success"] == true;
-        } catch (e) {
-          print("JSON INSERT ERROR : $e");
-          return true;
-        }
-      }
-
-      return false;
+      return true;
     } catch (e) {
       print("ERROR INSERT : $e");
       return false;
@@ -70,7 +46,7 @@ class ApiService {
   }
 
   // ==========================
-  // UPDATE DATA
+  // UPDATE
   // ==========================
   Future<bool> updateBahan({
     required String id,
@@ -79,38 +55,16 @@ class ApiService {
     required String masaSimpan,
   }) async {
     try {
-      final response = await http.post(
-        Uri.parse("$baseUrl/update_bahan.php"),
-        body: {
-          "id": id,
-          "nama": nama,
-          "tanggal_masuk": tanggalMasuk,
-          "masa_simpan": masaSimpan,
-        },
-      );
+      await supabase
+          .from('bahan')
+          .update({
+            'nama': nama,
+            'tanggal_masuk': tanggalMasuk,
+            'masa_simpan': int.parse(masaSimpan),
+          })
+          .eq('id', int.parse(id));
 
-      print("UPDATE STATUS : ${response.statusCode}");
-      print("UPDATE BODY : ${response.body}");
-
-      if (response.statusCode == 200) {
-        print("RAW RESPONSE UPDATE = ${response.body}");
-
-        try {
-          final result = jsonDecode(response.body);
-
-          print("SUCCESS VALUE = ${result["success"]}");
-
-          return result["success"] == true;
-        } catch (e) {
-          print("JSON UPDATE ERROR : $e");
-
-          // Jika database berhasil update
-          // tapi response bukan JSON valid
-          return true;
-        }
-      }
-
-      return false;
+      return true;
     } catch (e) {
       print("ERROR UPDATE : $e");
       return false;
@@ -118,32 +72,16 @@ class ApiService {
   }
 
   // ==========================
-  // DELETE DATA
+  // DELETE
   // ==========================
   Future<bool> deleteBahan(String id) async {
     try {
-      final response = await http.post(
-        Uri.parse("$baseUrl/delete_bahan.php"),
-        body: {"id": id},
-      );
+      await supabase
+          .from('bahan')
+          .delete()
+          .eq('id', int.parse(id));
 
-      print("DELETE STATUS : ${response.statusCode}");
-      print("DELETE BODY : ${response.body}");
-
-      if (response.statusCode == 200) {
-        try {
-          final result = jsonDecode(response.body);
-
-          print("DELETE RESULT : $result");
-
-          return result["success"] == true;
-        } catch (e) {
-          print("JSON DELETE ERROR : $e");
-          return true;
-        }
-      }
-
-      return false;
+      return true;
     } catch (e) {
       print("ERROR DELETE : $e");
       return false;
