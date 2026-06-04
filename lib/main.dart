@@ -2,6 +2,19 @@ import 'package:flutter/material.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/tambah_bahan_screen.dart';
 import 'screens/kategori_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Supabase.initialize(
+    url: 'URL_PROJECT_KAMU',
+    anonKey: 'ANON_KEY_KAMU',
+  );
+
+  runApp(const MyApp());
+}
 
 void main() {
   runApp(const MyApp());
