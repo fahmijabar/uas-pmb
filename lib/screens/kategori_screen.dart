@@ -85,22 +85,35 @@ class _KategoriScreenState extends State<KategoriScreen> {
     String namaKategori,
   ) async {
     try {
-      await supabase
+      final response = await supabase
           .from('kategori')
           .update({
             'nama': namaKategori,
           })
-          .eq('id', int.parse(id));
+          .eq('id', int.parse(id))
+          .select();
+
+      print("HASIL UPDATE:");
+      print(response);
 
       await getKategori();
 
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Kategori berhasil diubah"),
+          ),
+        );
+      }
+    } catch (e) {
+      print("ERROR UPDATE:");
+      print(e);
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Kategori berhasil diubah"),
+        SnackBar(
+          content: Text("Gagal update: $e"),
         ),
       );
-    } catch (e) {
-      print(e);
     }
   }
 
