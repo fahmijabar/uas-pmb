@@ -6,6 +6,7 @@ class EditBahanScreen extends StatefulWidget {
   final String nama;
   final String tanggalMasuk;
   final String masaSimpan;
+  final int kategoriId;
 
   const EditBahanScreen({
     super.key,
@@ -13,6 +14,7 @@ class EditBahanScreen extends StatefulWidget {
     required this.nama,
     required this.tanggalMasuk,
     required this.masaSimpan,
+    required this.kategoriId,
   });
 
   @override
@@ -28,13 +30,53 @@ class _EditBahanScreenState extends State<EditBahanScreen> {
 
   bool isLoading = false;
 
+  String? selectedJenis;
+  int kategoriId = 0;
+
+  final List<String> listJenis = [
+    'Makanan Kemasan (Input Manual)',
+    'Minuman Kemasan (Input Manual)',
+    'Sayuran (Otomatis 5 Hari)',
+    'Buah (Otomatis 7 Hari)',
+    'Daging / Ikan (Otomatis 3 Hari)',
+  ];
+
   @override
   void initState() {
     super.initState();
 
-    namaController = TextEditingController(text: widget.nama);
-    tanggalController = TextEditingController(text: widget.tanggalMasuk);
-    masaSimpanController = TextEditingController(text: widget.masaSimpan);
+    namaController =
+        TextEditingController(text: widget.nama);
+
+    tanggalController =
+        TextEditingController(text: widget.tanggalMasuk);
+
+    masaSimpanController =
+        TextEditingController(text: widget.masaSimpan);
+
+    kategoriId = widget.kategoriId;
+
+    switch (widget.kategoriId) {
+      case 1:
+        selectedJenis = 'Makanan Kemasan (Input Manual)';
+        break;
+
+      case 2:
+        selectedJenis = 'Minuman Kemasan (Input Manual)';
+        break;
+
+      case 3:
+        selectedJenis = 'Sayuran (Otomatis 5 Hari)';
+        break;
+
+      case 4:
+        selectedJenis = 'Buah (Otomatis 7 Hari)';
+        break;
+
+      case 5:
+        selectedJenis = 'Daging / Ikan (Otomatis 3 Hari)';
+        break;
+    }
   }
 
   @override
@@ -49,7 +91,9 @@ class _EditBahanScreenState extends State<EditBahanScreen> {
     DateTime initialDate;
 
     try {
-      initialDate = DateTime.parse(tanggalController.text);
+      initialDate = DateTime.parse(
+        tanggalController.text,
+      );
     } catch (_) {
       initialDate = DateTime.now();
     }
@@ -76,25 +120,21 @@ class _EditBahanScreenState extends State<EditBahanScreen> {
       isLoading = true;
     });
 
-    print("ID : ${widget.id}");
-    print("NAMA : ${namaController.text}");
-    print("TANGGAL : ${tanggalController.text}");
-    print("MASA SIMPAN : ${masaSimpanController.text}");
-
     bool success = await ApiService().updateBahan(
       id: widget.id,
       nama: namaController.text.trim(),
       tanggalMasuk: tanggalController.text.trim(),
       masaSimpan: masaSimpanController.text.trim(),
+      kategoriId: kategoriId,
     );
 
     setState(() {
       isLoading = false;
     });
 
-    if (success) {
-      if (!mounted) return;
+    if (!mounted) return;
 
+    if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Data berhasil diupdate"),
@@ -104,8 +144,6 @@ class _EditBahanScreenState extends State<EditBahanScreen> {
 
       Navigator.pop(context, true);
     } else {
-      if (!mounted) return;
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Gagal update data"),
@@ -113,6 +151,28 @@ class _EditBahanScreenState extends State<EditBahanScreen> {
         ),
       );
     }
+  }
+
+  void ubahKategori(String? value) {
+    setState(() {
+      selectedJenis = value;
+
+      if (value == 'Makanan Kemasan (Input Manual)') {
+        kategoriId = 1;
+      } else if (value ==
+          'Minuman Kemasan (Input Manual)') {
+        kategoriId = 2;
+      } else if (value ==
+          'Sayuran (Otomatis 5 Hari)') {
+        kategoriId = 3;
+      } else if (value ==
+          'Buah (Otomatis 7 Hari)') {
+        kategoriId = 4;
+      } else if (value ==
+          'Daging / Ikan (Otomatis 3 Hari)') {
+        kategoriId = 5;
+      }
+    });
   }
 
   @override
@@ -135,11 +195,29 @@ class _EditBahanScreenState extends State<EditBahanScreen> {
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
+                  if (value == null ||
+                      value.trim().isEmpty) {
                     return "Nama bahan wajib diisi";
                   }
                   return null;
                 },
+              ),
+
+              const SizedBox(height: 15),
+
+              DropdownButtonFormField<String>(
+                value: selectedJenis,
+                decoration: const InputDecoration(
+                  labelText: "Kategori",
+                  border: OutlineInputBorder(),
+                ),
+                items: listJenis.map((item) {
+                  return DropdownMenuItem(
+                    value: item,
+                    child: Text(item),
+                  );
+                }).toList(),
+                onChanged: ubahKategori,
               ),
 
               const SizedBox(height: 15),
@@ -151,31 +229,29 @@ class _EditBahanScreenState extends State<EditBahanScreen> {
                 decoration: const InputDecoration(
                   labelText: "Tanggal Masuk",
                   border: OutlineInputBorder(),
-                  suffixIcon: Icon(Icons.calendar_month),
+                  suffixIcon:
+                      Icon(Icons.calendar_month),
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Tanggal masuk wajib diisi";
-                  }
-                  return null;
-                },
               ),
 
               const SizedBox(height: 15),
 
               TextFormField(
                 controller: masaSimpanController,
-                keyboardType: TextInputType.number,
+                keyboardType:
+                    TextInputType.number,
                 decoration: const InputDecoration(
                   labelText: "Masa Simpan (Hari)",
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  if (value == null ||
+                      value.isEmpty) {
                     return "Masa simpan wajib diisi";
                   }
 
-                  if (int.tryParse(value) == null) {
+                  if (int.tryParse(value) ==
+                      null) {
                     return "Harus berupa angka";
                   }
 
@@ -188,15 +264,21 @@ class _EditBahanScreenState extends State<EditBahanScreen> {
               SizedBox(
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: isLoading ? null : updateData,
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.cyan),
+                  onPressed:
+                      isLoading ? null : updateData,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.cyan,
+                  ),
                   child: isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
+                      ? const CircularProgressIndicator(
+                          color: Colors.white,
+                        )
                       : const Text(
                           "UPDATE DATA",
                           style: TextStyle(
                             color: Colors.white,
-                            fontWeight: FontWeight.bold,
+                            fontWeight:
+                                FontWeight.bold,
                           ),
                         ),
                 ),

@@ -61,54 +61,87 @@ class _TambahBahanScreenState extends State<TambahBahanScreen> {
     });
 
     int masaSimpan = 0;
+    int kategoriId = 0;
 
-    if (_selectedJenis == 'Makanan Kemasan (Input Manual)' ||
-        _selectedJenis == 'Minuman Kemasan (Input Manual)') {
-      masaSimpan = _finalKadaluarsa!.difference(DateTime.now()).inDays + 1;
+    // SAYUR
+    if (_selectedJenis == 'Sayuran (Otomatis 5 Hari)') {
+      kategoriId = 1;
+      masaSimpan = 5;
+    }
+
+    // BUAH
+    else if (_selectedJenis == 'Buah (Otomatis 7 Hari)') {
+      kategoriId = 2;
+      masaSimpan = 7;
+    }
+
+    // DAGING
+    else if (_selectedJenis == 'Daging / Ikan (Otomatis 3 Hari)') {
+      kategoriId = 3;
+      masaSimpan = 3;
+    }
+
+    // MINUMAN KEMASAN
+    else if (_selectedJenis == 'Minuman Kemasan (Input Manual)') {
+      kategoriId = 4;
+
+      masaSimpan =
+          _finalKadaluarsa!.difference(DateTime.now()).inDays + 1;
 
       if (masaSimpan <= 0) {
         masaSimpan = 1;
       }
-    } else if (_selectedJenis == 'Sayuran (Otomatis 5 Hari)') {
-      masaSimpan = 5;
-    } else if (_selectedJenis == 'Buah (Otomatis 7 Hari)') {
-      masaSimpan = 7;
-    } else if (_selectedJenis == 'Daging / Ikan (Otomatis 3 Hari)') {
-      masaSimpan = 3;
     }
 
-    String tanggalMasuk = DateTime.now().toString().split(' ')[0];
+    // MAKANAN KEMASAN
+    else if (_selectedJenis == 'Makanan Kemasan (Input Manual)') {
 
-    bool sukses = await ApiService().insertBahan(
-      nama: _namaController.text.trim(),
-      tanggalMasuk: tanggalMasuk,
-      masaSimpan: masaSimpan.toString(),
-    );
+      // SEMENTARA masuk ke kategori Minuman Kemasan
+      // karena tabel kategori belum punya kategori Makanan Kemasan
+      kategoriId = 4;
 
-    if (!mounted) return;
+      masaSimpan =
+          _finalKadaluarsa!.difference(DateTime.now()).inDays + 1;
 
-    setState(() {
-      isLoading = false;
-    });
-
-    if (sukses) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Data berhasil disimpan"),
-          backgroundColor: Colors.green,
-        ),
-      );
-
-      Navigator.pop(context, true);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Gagal menyimpan data"),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (masaSimpan <= 0) {
+        masaSimpan = 1;
+      }
     }
-  }
+
+      String tanggalMasuk =
+          DateTime.now().toString().split(' ')[0];
+
+      bool sukses = await ApiService().insertBahan(
+        nama: _namaController.text.trim(),
+        tanggalMasuk: tanggalMasuk,
+        masaSimpan: masaSimpan.toString(),
+        kategoriId: kategoriId,
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        isLoading = false;
+      });
+
+      if (sukses) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Data berhasil disimpan"),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        Navigator.pop(context, true);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Gagal menyimpan data"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
 
   @override
   Widget build(BuildContext context) {
@@ -158,7 +191,10 @@ class _TambahBahanScreenState extends State<TambahBahanScreen> {
                     border: OutlineInputBorder(),
                   ),
                   items: _listJenis.map((item) {
-                    return DropdownMenuItem(value: item, child: Text(item));
+                    return DropdownMenuItem(
+                      value: item,
+                      child: Text(item),
+                    );
                   }).toList(),
                   onChanged: (value) {
                     setState(() {
@@ -181,8 +217,10 @@ class _TambahBahanScreenState extends State<TambahBahanScreen> {
 
                 const SizedBox(height: 15),
 
-                if (_selectedJenis == 'Makanan Kemasan (Input Manual)' ||
-                    _selectedJenis == 'Minuman Kemasan (Input Manual)')
+                if (_selectedJenis ==
+                        'Makanan Kemasan (Input Manual)' ||
+                    _selectedJenis ==
+                        'Minuman Kemasan (Input Manual)')
                   TextFormField(
                     controller: _tanggalController,
                     readOnly: true,
@@ -211,10 +249,15 @@ class _TambahBahanScreenState extends State<TambahBahanScreen> {
                       backgroundColor: Colors.teal,
                     ),
                     child: isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
+                        ? const CircularProgressIndicator(
+                            color: Colors.white,
+                          )
                         : const Text(
                             "Simpan ke Kulkas",
-                            style: TextStyle(color: Colors.white, fontSize: 16),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
                           ),
                   ),
                 ),

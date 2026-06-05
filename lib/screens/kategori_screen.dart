@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'bahan_kategori_screen.dart';
 
 class KategoriScreen extends StatefulWidget {
   const KategoriScreen({super.key});
@@ -316,14 +317,17 @@ class _KategoriScreenState extends State<KategoriScreen> {
                           vertical: 6,
                         ),
                         child: ListTile(
-                          leading: CircleAvatar(
-                            child: Icon(
-                              getKategoriIcon(
-                                kategori['nama'],
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => BahanKategoriScreen(
+                                  kategoriId: kategori['id'],
+                                  namaKategori: kategori['nama'],
+                                ),
                               ),
-                            ),
-                          ),
-
+                            );
+                          },
                           title: Text(
                             kategori['nama'],
                             style: const TextStyle(

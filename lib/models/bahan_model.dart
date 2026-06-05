@@ -4,11 +4,19 @@ class Bahan {
   final DateTime tanggalMasuk;
   final int masaSimpan;
 
+  // Foreign Key
+  final int kategoriId;
+
+  // Nama kategori (opsional)
+  final String? kategoriNama;
+
   Bahan({
     required this.id,
     required this.nama,
     required this.tanggalMasuk,
     required this.masaSimpan,
+    required this.kategoriId,
+    this.kategoriNama,
   });
 
   // ==========================
@@ -17,9 +25,23 @@ class Bahan {
   factory Bahan.fromJson(Map<String, dynamic> json) {
     return Bahan(
       id: json['id'].toString(),
+
       nama: json['nama'] ?? '',
-      tanggalMasuk: DateTime.parse(json['tanggal_masuk'].toString()),
-      masaSimpan: int.parse(json['masa_simpan'].toString()),
+
+      tanggalMasuk: DateTime.parse(
+        json['tanggal_masuk'].toString(),
+      ),
+
+      masaSimpan: int.tryParse(
+            json['masa_simpan'].toString(),
+          ) ??
+          0,
+
+      kategoriId: json['kategori_id'] ?? 0,
+
+      kategoriNama: json['kategori'] != null
+          ? json['kategori']['nama'].toString()
+          : null,
     );
   }
 
@@ -31,7 +53,8 @@ class Bahan {
       'id': id,
       'nama': nama,
       'tanggal_masuk': tanggalMasukFormat,
-      'masa_simpan': masaSimpan.toString(),
+      'masa_simpan': masaSimpan,
+      'kategori_id': kategoriId,
     };
   }
 
@@ -39,16 +62,22 @@ class Bahan {
   // ALGORITMA EXPIRED
   // ==========================
 
-  /// tanggal expired otomatis
+  /// tanggal expired
   DateTime get tanggalExpired {
-    return tanggalMasuk.add(Duration(days: masaSimpan));
+    return tanggalMasuk.add(
+      Duration(days: masaSimpan),
+    );
   }
 
-  /// sisa hari menuju expired
+  /// sisa hari
   int get sisaHari {
-    final sekarang = DateTime.now();
+    final now = DateTime.now();
 
-    final hariIni = DateTime(sekarang.year, sekarang.month, sekarang.day);
+    final hariIni = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    );
 
     final expired = DateTime(
       tanggalExpired.year,
@@ -59,10 +88,7 @@ class Bahan {
     return expired.difference(hariIni).inDays;
   }
 
-  /// apakah sudah expired
-  bool get isExpired => sisaHari < 0;
-
-  /// status untuk dashboard
+  /// status bahan
   String get status {
     if (sisaHari < 0) {
       return "Expired";

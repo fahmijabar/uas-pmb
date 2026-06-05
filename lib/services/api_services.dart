@@ -11,7 +11,13 @@ class ApiService {
     try {
       final data = await supabase
           .from('bahan')
-          .select()
+          .select('''
+            *,
+            kategori (
+              id,
+              nama
+            )
+          ''')
           .order('id');
 
       return (data as List)
@@ -30,12 +36,14 @@ class ApiService {
     required String nama,
     required String tanggalMasuk,
     required String masaSimpan,
+    required int kategoriId,
   }) async {
     try {
       await supabase.from('bahan').insert({
         'nama': nama,
         'tanggal_masuk': tanggalMasuk,
         'masa_simpan': int.parse(masaSimpan),
+        'kategori_id': kategoriId,
       });
 
       return true;
@@ -53,6 +61,7 @@ class ApiService {
     required String nama,
     required String tanggalMasuk,
     required String masaSimpan,
+    required int kategoriId,
   }) async {
     try {
       await supabase
@@ -61,6 +70,7 @@ class ApiService {
             'nama': nama,
             'tanggal_masuk': tanggalMasuk,
             'masa_simpan': int.parse(masaSimpan),
+            'kategori_id': kategoriId,
           })
           .eq('id', int.parse(id));
 
@@ -85,6 +95,34 @@ class ApiService {
     } catch (e) {
       print("ERROR DELETE : $e");
       return false;
+    }
+  }
+
+  // ==========================
+  // FILTER BERDASARKAN KATEGORI
+  // ==========================
+  Future<List<Bahan>> getBahanByKategori(
+    int kategoriId,
+  ) async {
+    try {
+      final data = await supabase
+          .from('bahan')
+          .select('''
+            *,
+            kategori (
+              id,
+              nama
+            )
+          ''')
+          .eq('kategori_id', kategoriId)
+          .order('id');
+
+      return (data as List)
+          .map((e) => Bahan.fromJson(e))
+          .toList();
+    } catch (e) {
+      print("ERROR FILTER : $e");
+      return [];
     }
   }
 }
