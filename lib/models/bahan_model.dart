@@ -93,7 +93,7 @@ class Bahan {
     if (sisaHari < 0) {
       return "Expired";
     } else if (sisaHari <= 2) {
-      return "Segera Habis";
+      return "Segera Expired";
     } else {
       return "Aman";
     }
