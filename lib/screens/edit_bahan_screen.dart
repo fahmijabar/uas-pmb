@@ -45,14 +45,11 @@ class _EditBahanScreenState extends State<EditBahanScreen> {
   void initState() {
     super.initState();
 
-    namaController =
-        TextEditingController(text: widget.nama);
+    namaController = TextEditingController(text: widget.nama);
 
-    tanggalController =
-        TextEditingController(text: widget.tanggalMasuk);
+    tanggalController = TextEditingController(text: widget.tanggalMasuk);
 
-    masaSimpanController =
-        TextEditingController(text: widget.masaSimpan);
+    masaSimpanController = TextEditingController(text: widget.masaSimpan);
 
     kategoriId = widget.kategoriId;
 
@@ -91,9 +88,7 @@ class _EditBahanScreenState extends State<EditBahanScreen> {
     DateTime initialDate;
 
     try {
-      initialDate = DateTime.parse(
-        tanggalController.text,
-      );
+      initialDate = DateTime.parse(tanggalController.text);
     } catch (_) {
       initialDate = DateTime.now();
     }
@@ -159,17 +154,13 @@ class _EditBahanScreenState extends State<EditBahanScreen> {
 
       if (value == 'Makanan Kemasan (Input Manual)') {
         kategoriId = 1;
-      } else if (value ==
-          'Minuman Kemasan (Input Manual)') {
+      } else if (value == 'Minuman Kemasan (Input Manual)') {
         kategoriId = 2;
-      } else if (value ==
-          'Sayuran (Otomatis 5 Hari)') {
+      } else if (value == 'Sayuran (Otomatis 5 Hari)') {
         kategoriId = 3;
-      } else if (value ==
-          'Buah (Otomatis 7 Hari)') {
+      } else if (value == 'Buah (Otomatis 7 Hari)') {
         kategoriId = 4;
-      } else if (value ==
-          'Daging / Ikan (Otomatis 3 Hari)') {
+      } else if (value == 'Daging / Ikan (Otomatis 3 Hari)') {
         kategoriId = 5;
       }
     });
@@ -195,8 +186,7 @@ class _EditBahanScreenState extends State<EditBahanScreen> {
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
-                  if (value == null ||
-                      value.trim().isEmpty) {
+                  if (value == null || value.trim().isEmpty) {
                     return "Nama bahan wajib diisi";
                   }
                   return null;
@@ -214,7 +204,7 @@ class _EditBahanScreenState extends State<EditBahanScreen> {
                 items: listJenis.map((item) {
                   return DropdownMenuItem(
                     value: item,
-                    child: Text(item),
+                    child: Text(item, overflow: TextOverflow.ellipsis),
                   );
                 }).toList(),
                 onChanged: ubahKategori,
@@ -229,8 +219,7 @@ class _EditBahanScreenState extends State<EditBahanScreen> {
                 decoration: const InputDecoration(
                   labelText: "Tanggal Masuk",
                   border: OutlineInputBorder(),
-                  suffixIcon:
-                      Icon(Icons.calendar_month),
+                  suffixIcon: Icon(Icons.calendar_month),
                 ),
               ),
 
@@ -238,20 +227,17 @@ class _EditBahanScreenState extends State<EditBahanScreen> {
 
               TextFormField(
                 controller: masaSimpanController,
-                keyboardType:
-                    TextInputType.number,
+                keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
                   labelText: "Masa Simpan (Hari)",
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
-                  if (value == null ||
-                      value.isEmpty) {
+                  if (value == null || value.isEmpty) {
                     return "Masa simpan wajib diisi";
                   }
 
-                  if (int.tryParse(value) ==
-                      null) {
+                  if (int.tryParse(value) == null) {
                     return "Harus berupa angka";
                   }
 
@@ -264,21 +250,15 @@ class _EditBahanScreenState extends State<EditBahanScreen> {
               SizedBox(
                 height: 50,
                 child: ElevatedButton(
-                  onPressed:
-                      isLoading ? null : updateData,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.cyan,
-                  ),
+                  onPressed: isLoading ? null : updateData,
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.cyan),
                   child: isLoading
-                      ? const CircularProgressIndicator(
-                          color: Colors.white,
-                        )
+                      ? const CircularProgressIndicator(color: Colors.white)
                       : const Text(
                           "UPDATE DATA",
                           style: TextStyle(
                             color: Colors.white,
-                            fontWeight:
-                                FontWeight.bold,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                 ),
