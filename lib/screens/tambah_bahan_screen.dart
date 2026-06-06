@@ -95,10 +95,7 @@ class _TambahBahanScreenState extends State<TambahBahanScreen> {
 
     // MAKANAN KEMASAN
     else if (_selectedJenis == 'Makanan Kemasan (Input Manual)') {
-
-      // SEMENTARA masuk ke kategori Minuman Kemasan
-      // karena tabel kategori belum punya kategori Makanan Kemasan
-      kategoriId = 4;
+      kategoriId = 5;
 
       masaSimpan =
           _finalKadaluarsa!.difference(DateTime.now()).inDays + 1;
