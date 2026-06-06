@@ -3,6 +3,7 @@ class Bahan {
   final String nama;
   final DateTime tanggalMasuk;
   final int masaSimpan;
+  final int jumlah;
 
   // Foreign Key
   final int kategoriId;
@@ -13,6 +14,7 @@ class Bahan {
   Bahan({
     required this.id,
     required this.nama,
+    required this.jumlah,
     required this.tanggalMasuk,
     required this.masaSimpan,
     required this.kategoriId,
@@ -27,6 +29,8 @@ class Bahan {
       id: json['id'].toString(),
 
       nama: json['nama'] ?? '',
+
+      jumlah: json['jumah'] ?? 0,
 
       tanggalMasuk: DateTime.parse(
         json['tanggal_masuk'].toString(),
@@ -52,6 +56,7 @@ class Bahan {
     return {
       'id': id,
       'nama': nama,
+      'jumlah': jumlah,
       'tanggal_masuk': tanggalMasukFormat,
       'masa_simpan': masaSimpan,
       'kategori_id': kategoriId,
