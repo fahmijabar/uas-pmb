@@ -95,10 +95,7 @@ class _TambahBahanScreenState extends State<TambahBahanScreen> {
 
     // MAKANAN KEMASAN
     else if (_selectedJenis == 'Makanan Kemasan (Input Manual)') {
-
-      // SEMENTARA masuk ke kategori Minuman Kemasan
-      // karena tabel kategori belum punya kategori Makanan Kemasan
-      kategoriId = 4;
+      kategoriId = 5;
 
       masaSimpan =
           _finalKadaluarsa!.difference(DateTime.now()).inDays + 1;
@@ -173,14 +170,26 @@ class _TambahBahanScreenState extends State<TambahBahanScreen> {
 
                 const SizedBox(height: 15),
 
-                TextFormField(
-                  controller: _jumlahController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: "Jumlah",
-                    border: OutlineInputBorder(),
-                  ),
+                              TextFormField(
+                controller: _jumlahController,
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Jumlah tidak boleh kosong';
+                  }
+
+                  if (int.tryParse(value) == null) {
+                    return 'Masukkan angka yang valid';
+                  }
+
+                  return null;
+                },
+                decoration: const InputDecoration(
+                  labelText: "Jumlah",
+                  hintText: "Contoh: 5",
+                  border: OutlineInputBorder(),
                 ),
+              ),
 
                 const SizedBox(height: 15),
 

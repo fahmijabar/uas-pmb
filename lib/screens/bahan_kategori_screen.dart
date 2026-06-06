@@ -83,7 +83,7 @@ class _BahanKategoriScreenState
                         ),
 
                         subtitle: Text(
-                          "Masa simpan : ${bahan['masa_simpan']} hari",
+                          "Masa Simpan : ${bahan['masa_simpan']} hari",
                         ),
                       ),
                     );

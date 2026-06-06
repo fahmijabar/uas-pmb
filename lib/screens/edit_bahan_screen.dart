@@ -34,11 +34,11 @@ class _EditBahanScreenState extends State<EditBahanScreen> {
   int kategoriId = 0;
 
   final List<String> listJenis = [
-    'Makanan Kemasan (Input Manual)',
-    'Minuman Kemasan (Input Manual)',
     'Sayuran (Otomatis 5 Hari)',
     'Buah (Otomatis 7 Hari)',
     'Daging / Ikan (Otomatis 3 Hari)',
+    'Makanan Kemasan (Input Manual)',
+    'Minuman Kemasan (Input Manual)',
   ];
 
   @override
@@ -55,23 +55,23 @@ class _EditBahanScreenState extends State<EditBahanScreen> {
 
     switch (widget.kategoriId) {
       case 1:
-        selectedJenis = 'Makanan Kemasan (Input Manual)';
-        break;
-
-      case 2:
-        selectedJenis = 'Minuman Kemasan (Input Manual)';
-        break;
-
-      case 3:
         selectedJenis = 'Sayuran (Otomatis 5 Hari)';
         break;
 
-      case 4:
+      case 2:
         selectedJenis = 'Buah (Otomatis 7 Hari)';
         break;
 
-      case 5:
+      case 3:
         selectedJenis = 'Daging / Ikan (Otomatis 3 Hari)';
+        break;
+
+      case 4:
+        selectedJenis = 'Minuman Kemasan (Input Manual)';
+        break;
+
+      case 5:
+        selectedJenis = 'Makanan Kemasan (Input Manual)';
         break;
     }
   }
@@ -152,8 +152,9 @@ class _EditBahanScreenState extends State<EditBahanScreen> {
     setState(() {
       selectedJenis = value;
 
-      if (value == 'Makanan Kemasan (Input Manual)') {
+      if (value == 'Sayuran (Otomatis 5 Hari)') {
         kategoriId = 1;
+<<<<<<< HEAD
       } else if (value == 'Minuman Kemasan (Input Manual)') {
         kategoriId = 2;
       } else if (value == 'Sayuran (Otomatis 5 Hari)') {
@@ -161,6 +162,19 @@ class _EditBahanScreenState extends State<EditBahanScreen> {
       } else if (value == 'Buah (Otomatis 7 Hari)') {
         kategoriId = 4;
       } else if (value == 'Daging / Ikan (Otomatis 3 Hari)') {
+=======
+      } 
+      else if (value == 'Buah (Otomatis 7 Hari)') {
+        kategoriId = 2;
+      } 
+      else if (value == 'Daging / Ikan (Otomatis 3 Hari)') {
+        kategoriId = 3;
+      } 
+      else if (value == 'Minuman Kemasan (Input Manual)') {
+        kategoriId = 4;
+      } 
+      else if (value == 'Makanan Kemasan (Input Manual)') {
+>>>>>>> b27f956c07f2b8e125a39edba0ca5bb0d42ebcf3
         kategoriId = 5;
       }
     });
