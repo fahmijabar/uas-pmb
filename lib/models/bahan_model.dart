@@ -1,14 +1,14 @@
 class Bahan {
   final String id;
   final String nama;
+  final int jumlah;
   final DateTime tanggalMasuk;
   final int masaSimpan;
-  final int jumlah;
 
   // Foreign Key
   final int kategoriId;
 
-  // Nama kategori (opsional)
+  // Nama kategori
   final String? kategoriNama;
 
   Bahan({
@@ -30,16 +30,11 @@ class Bahan {
 
       nama: json['nama'] ?? '',
 
-      jumlah: json['jumah'] ?? 0,
+      jumlah: int.tryParse(json['jumlah'].toString()) ?? 0,
 
-      tanggalMasuk: DateTime.parse(
-        json['tanggal_masuk'].toString(),
-      ),
+      tanggalMasuk: DateTime.parse(json['tanggal_masuk'].toString()),
 
-      masaSimpan: int.tryParse(
-            json['masa_simpan'].toString(),
-          ) ??
-          0,
+      masaSimpan: int.tryParse(json['masa_simpan'].toString()) ?? 0,
 
       kategoriId: json['kategori_id'] ?? 0,
 
@@ -67,22 +62,14 @@ class Bahan {
   // ALGORITMA EXPIRED
   // ==========================
 
-  /// tanggal expired
   DateTime get tanggalExpired {
-    return tanggalMasuk.add(
-      Duration(days: masaSimpan),
-    );
+    return tanggalMasuk.add(Duration(days: masaSimpan));
   }
 
-  /// sisa hari
   int get sisaHari {
     final now = DateTime.now();
 
-    final hariIni = DateTime(
-      now.year,
-      now.month,
-      now.day,
-    );
+    final hariIni = DateTime(now.year, now.month, now.day);
 
     final expired = DateTime(
       tanggalExpired.year,
@@ -93,7 +80,6 @@ class Bahan {
     return expired.difference(hariIni).inDays;
   }
 
-  /// status bahan
   String get status {
     if (sisaHari < 0) {
       return "Expired";

@@ -20,9 +20,7 @@ class ApiService {
           ''')
           .order('id');
 
-      return (data as List)
-          .map((e) => Bahan.fromJson(e))
-          .toList();
+      return (data as List).map((e) => Bahan.fromJson(e)).toList();
     } catch (e) {
       print("ERROR READ : $e");
       return [];
@@ -34,6 +32,7 @@ class ApiService {
   // ==========================
   Future<bool> insertBahan({
     required String nama,
+    required int jumlah,
     required String tanggalMasuk,
     required String masaSimpan,
     required int kategoriId,
@@ -41,6 +40,7 @@ class ApiService {
     try {
       await supabase.from('bahan').insert({
         'nama': nama,
+        'jumlah': jumlah,
         'tanggal_masuk': tanggalMasuk,
         'masa_simpan': int.parse(masaSimpan),
         'kategori_id': kategoriId,
@@ -48,7 +48,7 @@ class ApiService {
 
       return true;
     } catch (e) {
-      print("ERROR INSERT : $e");
+      print(e);
       return false;
     }
   }
@@ -59,6 +59,7 @@ class ApiService {
   Future<bool> updateBahan({
     required String id,
     required String nama,
+    required int jumlah,
     required String tanggalMasuk,
     required String masaSimpan,
     required int kategoriId,
@@ -68,11 +69,12 @@ class ApiService {
           .from('bahan')
           .update({
             'nama': nama,
+            'jumlah': jumlah,
             'tanggal_masuk': tanggalMasuk,
             'masa_simpan': int.parse(masaSimpan),
             'kategori_id': kategoriId,
           })
-          .eq('id', int.parse(id));
+          .eq('id', id);
 
       return true;
     } catch (e) {
@@ -86,10 +88,7 @@ class ApiService {
   // ==========================
   Future<bool> deleteBahan(String id) async {
     try {
-      await supabase
-          .from('bahan')
-          .delete()
-          .eq('id', int.parse(id));
+      await supabase.from('bahan').delete().eq('id', int.parse(id));
 
       return true;
     } catch (e) {
@@ -101,9 +100,7 @@ class ApiService {
   // ==========================
   // FILTER BERDASARKAN KATEGORI
   // ==========================
-  Future<List<Bahan>> getBahanByKategori(
-    int kategoriId,
-  ) async {
+  Future<List<Bahan>> getBahanByKategori(int kategoriId) async {
     try {
       final data = await supabase
           .from('bahan')
@@ -117,9 +114,7 @@ class ApiService {
           .eq('kategori_id', kategoriId)
           .order('id');
 
-      return (data as List)
-          .map((e) => Bahan.fromJson(e))
-          .toList();
+      return (data as List).map((e) => Bahan.fromJson(e)).toList();
     } catch (e) {
       print("ERROR FILTER : $e");
       return [];

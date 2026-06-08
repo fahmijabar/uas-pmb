@@ -7,6 +7,7 @@ class EditBahanScreen extends StatefulWidget {
   final String tanggalMasuk;
   final String masaSimpan;
   final int kategoriId;
+  final String jumlah;
 
   const EditBahanScreen({
     super.key,
@@ -15,6 +16,7 @@ class EditBahanScreen extends StatefulWidget {
     required this.tanggalMasuk,
     required this.masaSimpan,
     required this.kategoriId,
+    required this.jumlah,
   });
 
   @override
@@ -27,6 +29,7 @@ class _EditBahanScreenState extends State<EditBahanScreen> {
   late TextEditingController namaController;
   late TextEditingController tanggalController;
   late TextEditingController masaSimpanController;
+  late TextEditingController jumlahController;
 
   bool isLoading = false;
 
@@ -46,10 +49,9 @@ class _EditBahanScreenState extends State<EditBahanScreen> {
     super.initState();
 
     namaController = TextEditingController(text: widget.nama);
-
     tanggalController = TextEditingController(text: widget.tanggalMasuk);
-
     masaSimpanController = TextEditingController(text: widget.masaSimpan);
+    jumlahController = TextEditingController(text: widget.jumlah);
 
     kategoriId = widget.kategoriId;
 
@@ -81,7 +83,13 @@ class _EditBahanScreenState extends State<EditBahanScreen> {
     namaController.dispose();
     tanggalController.dispose();
     masaSimpanController.dispose();
+    jumlahController.dispose();
     super.dispose();
+  }
+
+  bool get isManualKategori {
+    return selectedJenis == 'Makanan Kemasan (Input Manual)' ||
+        selectedJenis == 'Minuman Kemasan (Input Manual)';
   }
 
   Future<void> pilihTanggal() async {
@@ -108,6 +116,39 @@ class _EditBahanScreenState extends State<EditBahanScreen> {
     }
   }
 
+  void ubahKategori(String? value) {
+    setState(() {
+      selectedJenis = value;
+
+      switch (value) {
+        case 'Sayuran (Otomatis 5 Hari)':
+          kategoriId = 1;
+          masaSimpanController.text = '5';
+          break;
+
+        case 'Buah (Otomatis 7 Hari)':
+          kategoriId = 2;
+          masaSimpanController.text = '7';
+          break;
+
+        case 'Daging / Ikan (Otomatis 3 Hari)':
+          kategoriId = 3;
+          masaSimpanController.text = '3';
+          break;
+
+        case 'Minuman Kemasan (Input Manual)':
+          kategoriId = 4;
+          masaSimpanController.clear();
+          break;
+
+        case 'Makanan Kemasan (Input Manual)':
+          kategoriId = 5;
+          masaSimpanController.clear();
+          break;
+      }
+    });
+  }
+
   Future<void> updateData() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -118,6 +159,7 @@ class _EditBahanScreenState extends State<EditBahanScreen> {
     bool success = await ApiService().updateBahan(
       id: widget.id,
       nama: namaController.text.trim(),
+      jumlah: int.parse(jumlahController.text),
       tanggalMasuk: tanggalController.text.trim(),
       masaSimpan: masaSimpanController.text.trim(),
       kategoriId: kategoriId,
@@ -146,38 +188,6 @@ class _EditBahanScreenState extends State<EditBahanScreen> {
         ),
       );
     }
-  }
-
-  void ubahKategori(String? value) {
-    setState(() {
-      selectedJenis = value;
-
-      if (value == 'Sayuran (Otomatis 5 Hari)') {
-        kategoriId = 1;
-<<<<<<< HEAD
-      } else if (value == 'Minuman Kemasan (Input Manual)') {
-        kategoriId = 2;
-      } else if (value == 'Sayuran (Otomatis 5 Hari)') {
-        kategoriId = 3;
-      } else if (value == 'Buah (Otomatis 7 Hari)') {
-        kategoriId = 4;
-      } else if (value == 'Daging / Ikan (Otomatis 3 Hari)') {
-=======
-      } 
-      else if (value == 'Buah (Otomatis 7 Hari)') {
-        kategoriId = 2;
-      } 
-      else if (value == 'Daging / Ikan (Otomatis 3 Hari)') {
-        kategoriId = 3;
-      } 
-      else if (value == 'Minuman Kemasan (Input Manual)') {
-        kategoriId = 4;
-      } 
-      else if (value == 'Makanan Kemasan (Input Manual)') {
->>>>>>> b27f956c07f2b8e125a39edba0ca5bb0d42ebcf3
-        kategoriId = 5;
-      }
-    });
   }
 
   @override
@@ -209,6 +219,33 @@ class _EditBahanScreenState extends State<EditBahanScreen> {
 
               const SizedBox(height: 15),
 
+              TextFormField(
+                controller: jumlahController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: "Jumlah",
+                  hintText: "Contoh: 5",
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Jumlah wajib diisi";
+                  }
+
+                  if (int.tryParse(value) == null) {
+                    return "Jumlah harus berupa angka";
+                  }
+
+                  if (int.parse(value) <= 0) {
+                    return "Jumlah minimal 1";
+                  }
+
+                  return null;
+                },
+              ),
+
+              const SizedBox(height: 15),
+
               DropdownButtonFormField<String>(
                 value: selectedJenis,
                 decoration: const InputDecoration(
@@ -216,12 +253,18 @@ class _EditBahanScreenState extends State<EditBahanScreen> {
                   border: OutlineInputBorder(),
                 ),
                 items: listJenis.map((item) {
-                  return DropdownMenuItem(
+                  return DropdownMenuItem<String>(
                     value: item,
                     child: Text(item, overflow: TextOverflow.ellipsis),
                   );
                 }).toList(),
                 onChanged: ubahKategori,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Kategori wajib dipilih";
+                  }
+                  return null;
+                },
               ),
 
               const SizedBox(height: 15),
@@ -241,13 +284,16 @@ class _EditBahanScreenState extends State<EditBahanScreen> {
 
               TextFormField(
                 controller: masaSimpanController,
+                enabled: isManualKategori,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: "Masa Simpan (Hari)",
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
+                  filled: !isManualKategori,
+                  fillColor: !isManualKategori ? Colors.grey.shade200 : null,
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  if (value == null || value.trim().isEmpty) {
                     return "Masa simpan wajib diisi";
                   }
 

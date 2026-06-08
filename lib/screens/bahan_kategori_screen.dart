@@ -12,13 +12,10 @@ class BahanKategoriScreen extends StatefulWidget {
   });
 
   @override
-  State<BahanKategoriScreen> createState() =>
-      _BahanKategoriScreenState();
+  State<BahanKategoriScreen> createState() => _BahanKategoriScreenState();
 }
 
-class _BahanKategoriScreenState
-    extends State<BahanKategoriScreen> {
-
+class _BahanKategoriScreenState extends State<BahanKategoriScreen> {
   final supabase = Supabase.instance.client;
 
   List bahanList = [];
@@ -41,7 +38,6 @@ class _BahanKategoriScreenState
         bahanList = data;
         isLoading = false;
       });
-
     } catch (e) {
       print(e);
 
@@ -54,41 +50,30 @@ class _BahanKategoriScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.namaKategori),
-      ),
+      appBar: AppBar(title: Text(widget.namaKategori)),
 
       body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
+          ? const Center(child: CircularProgressIndicator())
           : bahanList.isEmpty
-              ? const Center(
-                  child: Text(
-                    "Tidak ada bahan pada kategori ini",
+          ? const Center(child: Text("Tidak ada bahan pada kategori ini"))
+          : ListView.builder(
+              itemCount: bahanList.length,
+              itemBuilder: (context, index) {
+                final bahan = bahanList[index];
+
+                return Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.kitchen),
+
+                    title: Text(bahan['nama']),
+
+                    subtitle: Text(
+                      "Masa Simpan : ${bahan['masa_simpan']} hari",
+                    ),
                   ),
-                )
-              : ListView.builder(
-                  itemCount: bahanList.length,
-                  itemBuilder: (context, index) {
-
-                    final bahan = bahanList[index];
-
-                    return Card(
-                      child: ListTile(
-                        leading: const Icon(Icons.kitchen),
-
-                        title: Text(
-                          bahan['nama'],
-                        ),
-
-                        subtitle: Text(
-                          "Masa Simpan : ${bahan['masa_simpan']} hari",
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                );
+              },
+            ),
     );
   }
 }

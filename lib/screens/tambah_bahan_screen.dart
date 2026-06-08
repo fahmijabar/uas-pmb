@@ -68,77 +68,71 @@ class _TambahBahanScreenState extends State<TambahBahanScreen> {
       kategoriId = 1;
       masaSimpan = 5;
     }
-
     // BUAH
     else if (_selectedJenis == 'Buah (Otomatis 7 Hari)') {
       kategoriId = 2;
       masaSimpan = 7;
     }
-
     // DAGING
     else if (_selectedJenis == 'Daging / Ikan (Otomatis 3 Hari)') {
       kategoriId = 3;
       masaSimpan = 3;
     }
-
     // MINUMAN KEMASAN
     else if (_selectedJenis == 'Minuman Kemasan (Input Manual)') {
       kategoriId = 4;
 
-      masaSimpan =
-          _finalKadaluarsa!.difference(DateTime.now()).inDays + 1;
+      masaSimpan = _finalKadaluarsa!.difference(DateTime.now()).inDays + 1;
 
       if (masaSimpan <= 0) {
         masaSimpan = 1;
       }
     }
-
     // MAKANAN KEMASAN
     else if (_selectedJenis == 'Makanan Kemasan (Input Manual)') {
       kategoriId = 5;
 
-      masaSimpan =
-          _finalKadaluarsa!.difference(DateTime.now()).inDays + 1;
+      masaSimpan = _finalKadaluarsa!.difference(DateTime.now()).inDays + 1;
 
       if (masaSimpan <= 0) {
         masaSimpan = 1;
       }
     }
 
-      String tanggalMasuk =
-          DateTime.now().toString().split(' ')[0];
+    String tanggalMasuk = DateTime.now().toString().split(' ')[0];
 
-      bool sukses = await ApiService().insertBahan(
-        nama: _namaController.text.trim(),
-        tanggalMasuk: tanggalMasuk,
-        masaSimpan: masaSimpan.toString(),
-        kategoriId: kategoriId,
+    bool sukses = await ApiService().insertBahan(
+      nama: _namaController.text.trim(),
+      jumlah: int.parse(_jumlahController.text),
+      tanggalMasuk: tanggalMasuk,
+      masaSimpan: masaSimpan.toString(),
+      kategoriId: kategoriId,
+    );
+
+    if (!mounted) return;
+
+    setState(() {
+      isLoading = false;
+    });
+
+    if (sukses) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Data berhasil disimpan"),
+          backgroundColor: Colors.green,
+        ),
       );
 
-      if (!mounted) return;
-
-      setState(() {
-        isLoading = false;
-      });
-
-      if (sukses) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Data berhasil disimpan"),
-            backgroundColor: Colors.green,
-          ),
-        );
-
-        Navigator.pop(context, true);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Gagal menyimpan data"),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      Navigator.pop(context, true);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Gagal menyimpan data"),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -170,26 +164,26 @@ class _TambahBahanScreenState extends State<TambahBahanScreen> {
 
                 const SizedBox(height: 15),
 
-                              TextFormField(
-                controller: _jumlahController,
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Jumlah tidak boleh kosong';
-                  }
+                TextFormField(
+                  controller: _jumlahController,
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Jumlah tidak boleh kosong';
+                    }
 
-                  if (int.tryParse(value) == null) {
-                    return 'Masukkan angka yang valid';
-                  }
+                    if (int.tryParse(value) == null) {
+                      return 'Masukkan angka yang valid';
+                    }
 
-                  return null;
-                },
-                decoration: const InputDecoration(
-                  labelText: "Jumlah",
-                  hintText: "Contoh: 5",
-                  border: OutlineInputBorder(),
+                    return null;
+                  },
+                  decoration: const InputDecoration(
+                    labelText: "Jumlah",
+                    hintText: "Contoh: 5",
+                    border: OutlineInputBorder(),
+                  ),
                 ),
-              ),
 
                 const SizedBox(height: 15),
 
@@ -200,10 +194,7 @@ class _TambahBahanScreenState extends State<TambahBahanScreen> {
                     border: OutlineInputBorder(),
                   ),
                   items: _listJenis.map((item) {
-                    return DropdownMenuItem(
-                      value: item,
-                      child: Text(item),
-                    );
+                    return DropdownMenuItem(value: item, child: Text(item));
                   }).toList(),
                   onChanged: (value) {
                     setState(() {
@@ -226,10 +217,8 @@ class _TambahBahanScreenState extends State<TambahBahanScreen> {
 
                 const SizedBox(height: 15),
 
-                if (_selectedJenis ==
-                        'Makanan Kemasan (Input Manual)' ||
-                    _selectedJenis ==
-                        'Minuman Kemasan (Input Manual)')
+                if (_selectedJenis == 'Makanan Kemasan (Input Manual)' ||
+                    _selectedJenis == 'Minuman Kemasan (Input Manual)')
                   TextFormField(
                     controller: _tanggalController,
                     readOnly: true,
@@ -258,15 +247,10 @@ class _TambahBahanScreenState extends State<TambahBahanScreen> {
                       backgroundColor: Colors.teal,
                     ),
                     child: isLoading
-                        ? const CircularProgressIndicator(
-                            color: Colors.white,
-                          )
+                        ? const CircularProgressIndicator(color: Colors.white)
                         : const Text(
                             "Simpan ke Kulkas",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                            ),
+                            style: TextStyle(color: Colors.white, fontSize: 16),
                           ),
                   ),
                 ),

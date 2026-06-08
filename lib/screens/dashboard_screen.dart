@@ -97,6 +97,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         children: [
                           const SizedBox(height: 5),
 
+                          Text("Jumlah : ${bahan.jumlah}"),
+
                           Text("Tanggal Masuk : ${bahan.tanggalMasukFormat}"),
 
                           Text(
@@ -116,74 +118,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                         ],
                       ),
-
-                      // trailing: SizedBox(
-                      //   width: 90,
-                      //   child: Row(
-                      //     children: [
-                      //       IconButton(
-                      //         icon: const Icon(Icons.edit, color: Colors.blue),
-                      //         onPressed: () async {
-                      //           final result = await Navigator.push(
-                      //             context,
-                      //             MaterialPageRoute(
-                      //               builder: (_) => EditBahanScreen(
-                      //                 id: bahan.id,
-                      //                 nama: bahan.nama,
-                      //                 tanggalMasuk: bahan.tanggalMasukFormat,
-                      //                 masaSimpan: bahan.masaSimpan.toString(),
-
-                      //                 // ambil kategori asli dari database
-                      //                 kategoriId: bahan.kategoriId,
-                      //               ),
-                      //             ),
-                      //           );
-
-                      //           if (result == true) {
-                      //             setState(() {
-                      //               loadData();
-                      //             });
-                      //           }
-                      //         },
-                      //       ),
-
-                      //       IconButton(
-                      //         icon: const Icon(Icons.delete, color: Colors.red),
-                      //         onPressed: () {
-                      //           showDialog(
-                      //             context: context,
-                      //             builder: (_) => AlertDialog(
-                      //               title: const Text("Hapus Data"),
-                      //               content: Text(
-                      //                 "Yakin ingin menghapus ${bahan.nama}?",
-                      //               ),
-                      //               actions: [
-                      //                 TextButton(
-                      //                   onPressed: () => Navigator.pop(context),
-                      //                   child: const Text("Batal"),
-                      //                 ),
-                      //                 TextButton(
-                      //                   onPressed: () {
-                      //                     Navigator.pop(context);
-                      //                     hapusData(bahan.id);
-                      //                   },
-                      //                   child: const Text("Hapus"),
-                      //                 ),
-                      //               ],
-                      //             ),
-                      //           );
-                      //         },
-                      //       ),
-                      //     ],
-                      //   ),
-                      // ),
                     ),
+
                     SizedBox(
                       width: double.infinity,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          TextButton(
+                          IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.blue),
+                            tooltip: "Edit",
                             onPressed: () async {
                               final result = await Navigator.push(
                                 context,
@@ -191,10 +135,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   builder: (_) => EditBahanScreen(
                                     id: bahan.id,
                                     nama: bahan.nama,
+                                    jumlah: bahan.jumlah.toString(),
                                     tanggalMasuk: bahan.tanggalMasukFormat,
                                     masaSimpan: bahan.masaSimpan.toString(),
-
-                                    // ambil kategori asli dari database
                                     kategoriId: bahan.kategoriId,
                                   ),
                                 ),
@@ -206,10 +149,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 });
                               }
                             },
-                            child: const Text("Edit"),
                           ),
 
-                          TextButton(
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            tooltip: "Hapus",
                             onPressed: () {
                               showDialog(
                                 context: context,
@@ -234,7 +178,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 ),
                               );
                             },
-                            child: const Text("Hapus"),
                           ),
                         ],
                       ),
