@@ -139,7 +139,7 @@ class _TambahBahanScreenState extends State<TambahBahanScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Tambah Bahan"),
-        backgroundColor: Colors.teal,
+        backgroundColor: Colors.cyan,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -244,7 +244,7 @@ class _TambahBahanScreenState extends State<TambahBahanScreen> {
                   child: ElevatedButton(
                     onPressed: isLoading ? null : simpanData,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.teal,
+                      backgroundColor: Colors.cyan,
                     ),
                     child: isLoading
                         ? const CircularProgressIndicator(color: Colors.white)
