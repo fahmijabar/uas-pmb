@@ -63,23 +63,16 @@ class _TambahBahanScreenState extends State<TambahBahanScreen> {
     int masaSimpan = 0;
     int kategoriId = 0;
 
-    // SAYUR
     if (_selectedJenis == 'Sayuran (Otomatis 5 Hari)') {
       kategoriId = 1;
       masaSimpan = 5;
-    }
-    // BUAH
-    else if (_selectedJenis == 'Buah (Otomatis 7 Hari)') {
+    } else if (_selectedJenis == 'Buah (Otomatis 7 Hari)') {
       kategoriId = 2;
       masaSimpan = 7;
-    }
-    // DAGING
-    else if (_selectedJenis == 'Daging / Ikan (Otomatis 3 Hari)') {
+    } else if (_selectedJenis == 'Daging / Ikan (Otomatis 3 Hari)') {
       kategoriId = 3;
       masaSimpan = 3;
-    }
-    // MINUMAN KEMASAN
-    else if (_selectedJenis == 'Minuman Kemasan (Input Manual)') {
+    } else if (_selectedJenis == 'Minuman Kemasan (Input Manual)') {
       kategoriId = 4;
 
       masaSimpan = _finalKadaluarsa!.difference(DateTime.now()).inDays + 1;
@@ -87,9 +80,7 @@ class _TambahBahanScreenState extends State<TambahBahanScreen> {
       if (masaSimpan <= 0) {
         masaSimpan = 1;
       }
-    }
-    // MAKANAN KEMASAN
-    else if (_selectedJenis == 'Makanan Kemasan (Input Manual)') {
+    } else if (_selectedJenis == 'Makanan Kemasan (Input Manual)') {
       kategoriId = 5;
 
       masaSimpan = _finalKadaluarsa!.difference(DateTime.now()).inDays + 1;

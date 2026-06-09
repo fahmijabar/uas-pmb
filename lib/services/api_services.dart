@@ -4,9 +4,6 @@ import '../models/bahan_model.dart';
 class ApiService {
   final supabase = Supabase.instance.client;
 
-  // ==========================
-  // READ
-  // ==========================
   Future<List<Bahan>> getBahan() async {
     try {
       final data = await supabase
@@ -27,9 +24,6 @@ class ApiService {
     }
   }
 
-  // ==========================
-  // INSERT
-  // ==========================
   Future<bool> insertBahan({
     required String nama,
     required int jumlah,
@@ -53,9 +47,6 @@ class ApiService {
     }
   }
 
-  // ==========================
-  // UPDATE
-  // ==========================
   Future<bool> updateBahan({
     required String id,
     required String nama,
@@ -83,9 +74,6 @@ class ApiService {
     }
   }
 
-  // ==========================
-  // DELETE
-  // ==========================
   Future<bool> deleteBahan(String id) async {
     try {
       await supabase.from('bahan').delete().eq('id', int.parse(id));
@@ -97,9 +85,6 @@ class ApiService {
     }
   }
 
-  // ==========================
-  // FILTER BERDASARKAN KATEGORI
-  // ==========================
   Future<List<Bahan>> getBahanByKategori(int kategoriId) async {
     try {
       final data = await supabase

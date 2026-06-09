@@ -5,10 +5,8 @@ class Bahan {
   final DateTime tanggalMasuk;
   final int masaSimpan;
 
-  // Foreign Key
   final int kategoriId;
 
-  // Nama kategori
   final String? kategoriNama;
 
   Bahan({
@@ -21,9 +19,6 @@ class Bahan {
     this.kategoriNama,
   });
 
-  // ==========================
-  // JSON -> OBJECT
-  // ==========================
   factory Bahan.fromJson(Map<String, dynamic> json) {
     return Bahan(
       id: json['id'].toString(),
@@ -44,9 +39,6 @@ class Bahan {
     );
   }
 
-  // ==========================
-  // OBJECT -> JSON
-  // ==========================
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -57,10 +49,6 @@ class Bahan {
       'kategori_id': kategoriId,
     };
   }
-
-  // ==========================
-  // ALGORITMA EXPIRED
-  // ==========================
 
   DateTime get tanggalExpired {
     return tanggalMasuk.add(Duration(days: masaSimpan));
@@ -89,10 +77,6 @@ class Bahan {
       return "Aman";
     }
   }
-
-  // ==========================
-  // FORMAT TANGGAL
-  // ==========================
 
   String get tanggalMasukFormat {
     return "${tanggalMasuk.year}-${tanggalMasuk.month.toString().padLeft(2, '0')}-${tanggalMasuk.day.toString().padLeft(2, '0')}";

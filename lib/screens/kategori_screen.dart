@@ -21,9 +21,6 @@ class _KategoriScreenState extends State<KategoriScreen> {
     getKategori();
   }
 
-  // ==========================
-  // READ
-  // ==========================
   Future<void> getKategori() async {
     setState(() {
       isLoading = true;
@@ -53,9 +50,6 @@ class _KategoriScreenState extends State<KategoriScreen> {
     }
   }
 
-  // ==========================
-  // CREATE
-  // ==========================
   Future<void> tambahKategori(String namaKategori) async {
     try {
       await supabase.from('kategori').insert({'nama': namaKategori});
@@ -70,9 +64,6 @@ class _KategoriScreenState extends State<KategoriScreen> {
     }
   }
 
-  // ==========================
-  // UPDATE
-  // ==========================
   Future<void> updateKategori(String id, String namaKategori) async {
     try {
       final response = await supabase
@@ -101,9 +92,6 @@ class _KategoriScreenState extends State<KategoriScreen> {
     }
   }
 
-  // ==========================
-  // DELETE
-  // ==========================
   Future<void> hapusKategori(String id) async {
     try {
       await supabase.from('kategori').delete().eq('id', int.parse(id));
@@ -118,9 +106,6 @@ class _KategoriScreenState extends State<KategoriScreen> {
     }
   }
 
-  // ==========================
-  // DIALOG TAMBAH
-  // ==========================
   void showTambahDialog() {
     TextEditingController controller = TextEditingController();
 
@@ -156,9 +141,6 @@ class _KategoriScreenState extends State<KategoriScreen> {
     );
   }
 
-  // ==========================
-  // DIALOG EDIT
-  // ==========================
   void showEditDialog(String id, String namaKategori) {
     TextEditingController controller = TextEditingController(
       text: namaKategori,
@@ -196,9 +178,6 @@ class _KategoriScreenState extends State<KategoriScreen> {
     );
   }
 
-  // ==========================
-  // DIALOG HAPUS
-  // ==========================
   void showDeleteDialog(String id) {
     showDialog(
       context: context,
